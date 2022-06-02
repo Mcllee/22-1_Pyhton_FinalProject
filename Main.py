@@ -10,13 +10,13 @@ import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 
-token = '5374345704:AAGQzrf8WsaUbYhV-_R0pvqlH-F0arA3kEw'
-id = 5312362183
-bot = telegram.Bot(token)
-
 import pytz
 import datetime
 import schedule
+
+token = '5374345704:AAGQzrf8WsaUbYhV-_R0pvqlH-F0arA3kEw'
+id = 5312362183
+bot = telegram.Bot(token)
 
 
 def job():
@@ -26,7 +26,6 @@ def job():
 
 
 schedule.every(1).minutes.do(job)
-
 
 # Updater
 updater = Updater(token=token, use_context=True)
