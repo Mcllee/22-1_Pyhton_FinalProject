@@ -1,25 +1,52 @@
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
 
-USER = "2018184020"
-PASS = "1077111"
 
-session = requests.session()
+class class_inf:
+    # 클래스 생성자 정의
+    def __init__(self, name, professor, hour):
+        self.name = name
+        self.professor = professor
+        self.hour = hour
 
-login_info = {
-    "m_id": USER,
-    "m_passwd": PASS
-}
 
-#POST로 데이터 보내기
-url_login = "http://eclass.tukorea.ac.kr/ilos/main/member/login_form.acl"
-res = session.post(url_login, data=login_info)
-res.raise_for_status() #오류 발생하면 예외 발생
+# 과목 정보를 담는 리스트
+subjects = []
 
-url_mypage = "http://eclass.tukorea.ac.kr/ilos/main/main_form.acl"
-res = session.get(url_mypage)
-res.raise_for_status()
 
-soup = BeautifulSoup(res.text, "html.parser")
+def set_sub():
+    driver = webdriver.Chrome()
+    driver.get('http://eclass.tukorea.ac.kr/ilos/main/member/login_form.acl')
+    driver.find_element(By.XPATH, '//*[@id="usr_id"]').click()
+    driver.find_element(By.XPATH, '//*[@id="usr_id"]').send_keys('2018184020')
+    driver.find_element(By.XPATH, '//*[@id="usr_pwd"]').click()
+    driver.find_element(By.XPATH, '//*[@id="usr_pwd"]').send_keys('1077111')
+    driver.find_element(By.XPATH, '//*[@id="login_btn"]').click()
+    driver.find_element(By.XPATH, '//*[@id="quick-menu-index"]/a[1]/div/img').click()
 
+    time.sleep(1)
+    elms = driver.find_element(By.XPATH, '//*[@id="lecture_list"]/div[1]/div[1]').text
+    driver.close()
+
+    elms = elms.split('\n')
+
+    for name, professor, hour in zip(elms[1::3], elms[2::3], elms[3::3]):
+        subjects.append(class_inf(name, professor, hour))
+
+
+def get_todo_list():
+    driver = webdriver.Chrome()
+    driver.get('http://eclass.tukorea.ac.kr/ilos/main/member/login_form.acl')
+    driver.find_element(By.XPATH, '//*[@id="usr_id"]').click()
+    driver.find_element(By.XPATH, '//*[@id="usr_id"]').send_keys('2018184020')
+    driver.find_element(By.XPATH, '//*[@id="usr_pwd"]').click()
+    driver.find_element(By.XPATH, '//*[@id="usr_pwd"]').send_keys('1077111')
+    driver.find_element(By.XPATH, '//*[@id="login_btn"]').click()
+    driver.find_element(By.XPATH, '//*[@id="header"]/div[4]/div/fieldset/div/div[2]/img').click()
+
+    time.sleep(1)
+    elms = driver.find_element(By.CSS_SELECTOR, '#todo_list').text
+    driver.close()
+
+    return elms.replace('[', '\n[')

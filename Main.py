@@ -13,6 +13,9 @@ from selenium.webdriver.chrome.service import Service
 import pytz
 import datetime
 import schedule
+from selenium.webdriver.common.by import By
+
+import WebLogin as WL
 
 token = '5374345704:AAGQzrf8WsaUbYhV-_R0pvqlH-F0arA3kEw'
 id = 5312362183
@@ -23,6 +26,10 @@ def job():
     now = datetime.datetime.now(pytz.timezone('Asia/Seoul'))
     if now.minute == 0:
         bot.send_message(chat_id=id, text=f"명철씌 정각 알람이에요!\n현재시각: {now.hour}:{now.minute} 입니다!")
+    elif now.hour == 8 and now.minute == 30:
+        now = datetime.datetime.now(pytz.timezone('Asia/Seoul'))
+        todo_list = f'완전 상쾌한 아침이야!!!\n오늘 부셔버릴 일들은 다음과 같아\n' + WL.get_todo_list()
+        bot.send_message(chat_id=id, text=todo_list)
 
 
 schedule.every(1).minutes.do(job)
@@ -36,7 +43,13 @@ updater.start_polling()
 def handler(update, context):
     user_text = update.message.text  # 사용자가 보낸 메세지를 user_text 변수에 저장합니다.
     if user_text == '일정':
-        pass
+        now = datetime.datetime.now(pytz.timezone('Asia/Seoul'))
+        todo_list = f'[{now.month}월 {now.day}일 해야할 일]\n' + WL.get_todo_list()
+        bot.send_message(chat_id=id, text=todo_list)
+    elif user_text == "알림":
+        WL.set_sub()
+        for sub in WL.subjects:
+            bot.send_message(chat_id=id, text=f'과목: {sub.name}\n교수님: {sub.professor}\n시간: {sub.hour}')
     elif user_text == "식당" or user_text == "밥" or user_text == "학식" or user_text == "ㅅㄷ" or user_text == "ㅂ" or user_text == "ㅎㅅ":
 
         bot.send_message(chat_id=id, text="이번주 식단입니다.")
