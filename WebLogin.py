@@ -1,6 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
+import datetime
+import pytz
 
 
 class class_inf:
@@ -33,6 +35,23 @@ def set_sub():
 
     for name, professor, hour in zip(elms[1::3], elms[2::3], elms[3::3]):
         subjects.append(class_inf(name, professor, hour))
+
+    days = ['월', '화', '수', '목', '금', '토', '일']
+    now = datetime.datetime.now(pytz.timezone('Asia/Seoul'))
+    today = days[datetime.date(now.year, now.month, now.day).weekday()]
+
+    todo_list = ''
+
+    for line in subjects:
+        line.hour = line.hour.split(' ')
+        if line.hour[0] == today:
+            todo_list += (line.name + ' ' + line.hour[0] + ' ' + line.hour[2] + '\n')
+        elif len(line.hour[3]) == 1 and line.hour[3] == today:
+            todo_list += (line.name + ' ' + line.hour[3] + ' ' + line.hour[5] + '\n')
+        elif today == '토' or today == '일':
+            todo_list = f"야호! 오늘은 {today}요일!"
+            break
+    return todo_list
 
 
 def get_todo_list():

@@ -30,6 +30,7 @@ def job():
         now = datetime.datetime.now(pytz.timezone('Asia/Seoul'))
         todo_list = f'완전 상쾌한 아침이야!!!\n오늘 부셔버릴 일들은 다음과 같아\n' + WL.get_todo_list()
         bot.send_message(chat_id=id, text=todo_list)
+        bot.send_message(chat_id=id, text=WL.set_sub())
 
 
 schedule.every(1).minutes.do(job)
@@ -46,40 +47,29 @@ def handler(update, context):
         now = datetime.datetime.now(pytz.timezone('Asia/Seoul'))
         todo_list = f'[{now.month}월 {now.day}일 해야할 일]\n' + WL.get_todo_list()
         bot.send_message(chat_id=id, text=todo_list)
-    elif user_text == "알림":
-        WL.set_sub()
-        for sub in WL.subjects:
-            bot.send_message(chat_id=id, text=f'과목: {sub.name}\n교수님: {sub.professor}\n시간: {sub.hour}')
+    elif user_text == "수업":
+        bot.send_message(chat_id=id, text=WL.set_sub())
     elif user_text == "식당" or user_text == "밥" or user_text == "학식" or user_text == "ㅅㄷ" or user_text == "ㅂ" or user_text == "ㅎㅅ":
-
         bot.send_message(chat_id=id, text="이번주 식단입니다.")
-
         chrome_options01 = webdriver.ChromeOptions()
         chrome_options02 = webdriver.ChromeOptions()
-
         chrome_options01.add_argument("--headless")
         chrome_options01.add_argument("--no-sandbox")
         chrome_options01.add_argument("--disable-dev-shm-usage")
-
         chrome_options02.add_argument("--headless")
         chrome_options02.add_argument("--no-sandbox")
         chrome_options02.add_argument("--disable-dev-shm-usage")
-
         # chromedriver 위치 주의!
         driver01 = webdriver.Chrome(service=Service("chromedriver"), options=chrome_options01)
         driver02 = webdriver.Chrome(service=Service("chromedriver"), options=chrome_options02)
-
         driver01.get('https://ibook.kpu.ac.kr/Viewer/menu01')
         time.sleep(1)  # 스크린샹을 위해 잠시 멈춤(쉡 로딩)
         driver01.get_screenshot_as_file('screenshot01.png')
-
         driver02.get('https://ibook.kpu.ac.kr/Viewer/menu02')
         time.sleep(1)  # 스크린샹을 위해 잠시 멈춤(쉡 로딩)
         driver02.get_screenshot_as_file('screenshot02.png')
-
         driver01.close()
         driver02.close()
-
         bot.send_photo(chat_id=id, photo=open('screenshot01.png', 'rb'))
         bot.send_photo(chat_id=id, photo=open('screenshot02.png', 'rb'))
         os.remove('./screenshot01.png')
