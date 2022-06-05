@@ -24,6 +24,21 @@ bot = telegram.Bot(token)
 
 def job():
     now = datetime.datetime.now(pytz.timezone('Asia/Seoul'))
+    days = ['월', '화', '수', '목', '금', '토', '일']
+    weekday = days[datetime.date(now.year, now.month, now.day).weekday()]
+
+    if weekday != '토' and weekday != '일':
+        subs = WL.set_sub()
+        subs = subs.split('\n')
+        for sub in subs:
+            sub = sub.split(' ')
+            for s in sub[2::3]:
+                if (int(s[0:2]) == now.hour) and (int(s[3:5]) == now.minute + 10) and sub[1] == weekday:
+                    bot.send_message(chat_id=id,
+                                     text='[수업 시간 10분 전 알림]\n과목: ' + sub[0] + '\n시간: ' + sub[2] + ' (' + sub[1] + ')')
+                elif int(s[0:2]) == now.hour + 1 and int(s[3:5]) == now.minute - 50 and sub[1] == weekday:
+                    bot.send_message(chat_id=id,
+                                     text='[수업 시간 10분 전 알림]\n과목: ' + sub[0] + '\n시간: ' + sub[2] + ' (' + sub[1] + ')')
     if now.minute == 0:
         bot.send_message(chat_id=id, text=f"명철씌 정각 알람이에요!\n현재시각: {now.hour}:{now.minute} 입니다!")
     elif now.hour == 8 and now.minute == 30:
@@ -33,17 +48,23 @@ def job():
         bot.send_message(chat_id=id, text=WL.set_sub())
 
 
-schedule.every(1).minutes.do(job)
-
-# Updater
-updater = Updater(token=token, use_context=True)
-dispatcher = updater.dispatcher
-updater.start_polling()
-
-
 def handler(update, context):
+    global schedule_loop
+
     user_text = update.message.text  # 사용자가 보낸 메세지를 user_text 변수에 저장합니다.
-    if user_text == '일정':
+    if user_text =='종료':
+        schedule_loop = False
+        updater.stop()
+        exit()
+    elif user_text == '내일수업' or user_text == '내일 수업' or user_text == '내일':
+        tomororow_sub = WL.tomorrow_sub()
+        tomororow_sub = tomororow_sub.split(' ')
+        sum_text = '[내일 수업 알림]\n\n'
+        for name, week, hour in zip(tomororow_sub[::3], tomororow_sub[1::3], tomororow_sub[2::3]):
+            sum_text += f'과목: {name}\n시간: {hour} ({week})\n\n'
+        bot.send_message(chat_id=id,
+                         text=sum_text)
+    elif user_text == '일정':
         now = datetime.datetime.now(pytz.timezone('Asia/Seoul'))
         todo_list = f'[{now.month}월 {now.day}일 해야할 일]\n' + WL.get_todo_list()
         bot.send_message(chat_id=id, text=todo_list)
@@ -81,9 +102,18 @@ def handler(update, context):
             bot.send_message(chat_id=id, text="잘못된 명령어 입니다!")
 
 
-echo_handler = MessageHandler(Filters.text, handler)
-dispatcher.add_handler(echo_handler)
+schedule_loop = True
+schedule.every(30).seconds.do(job)
 
-while True:
+# Updater
+updater = Updater(token=token, use_context=True)
+dispatcher = updater.dispatcher
+updater.start_polling()
+
+
+
+while schedule_loop:
+    echo_handler = MessageHandler(Filters.text, handler)
+    dispatcher.add_handler(echo_handler)
     schedule.run_pending()
     time.sleep(1)
