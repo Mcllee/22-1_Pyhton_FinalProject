@@ -39,13 +39,15 @@ def first_setting():
     driver.find_element(By.XPATH, '//*[@id="login_btn"]').click()
     driver.find_element(By.XPATH, '//*[@id="quick-menu-index"]/a[1]/div/img').click()
 
+    driver.find_element(By.XPATH, '//*[@id="LANG"]/option[1]').click()
+
     time.sleep(1)
-    elms = driver.find_element(By.XPATH, '//*[@id="lecture_list"]/div[1]/div[1]').text
+    elms = driver.find_element(By.XPATH, '//*[@id="lecture_list"]/div[1]/div[1]').text.split('\n')
     driver.close()
-    elms = elms.split('\n')
 
 
 def set_sub():
+    global elms
     subjects.clear()
     for name, professor, hour in zip(elms[1::3], elms[2::3], elms[3::3]):
         subjects.append(class_inf(name, professor, hour))
@@ -59,9 +61,11 @@ def set_sub():
     for line in subjects:
         line.hour = line.hour.split(' ')
         if line.hour[0] == today:
-            todo_list += (line.name + ' ' + line.hour[0] + ' ' + line.hour[2] + '\n')
+            line.name = line.name.replace(' ', '_')
+            todo_list += (line.name + ' ' + line.hour[0] + ' ' + line.hour[2] + ' ')
         elif len(line.hour[3]) == 1 and line.hour[3] == today:
-            todo_list += (line.name + ' ' + line.hour[3] + ' ' + line.hour[5] + '\n')
+            line.name = line.name.replace(' ', '_')
+            todo_list += (line.name + ' ' + line.hour[3] + ' ' + line.hour[5] + ' ')
         elif today == '토' or today == '일':
             todo_list = f"야호! 오늘은 {today}요일!"
             break
@@ -69,6 +73,7 @@ def set_sub():
 
 
 def tomorrow_sub():
+    global elms
     subjects.clear()
     for name, professor, hour in zip(elms[1::3], elms[2::3], elms[3::3]):
         subjects.append(class_inf(name, professor, hour))
@@ -82,8 +87,10 @@ def tomorrow_sub():
     for line in subjects:
         line.hour = line.hour.split(' ')
         if line.hour[0] == today:
+            line.name = line.name.replace(' ', '_')
             todo_list += (line.name + ' ' + line.hour[0] + ' ' + line.hour[2] + ' ')
         elif len(line.hour[3]) == 1 and line.hour[3] == today:
+            line.name = line.name.replace(' ', '_')
             todo_list += (line.name + ' ' + line.hour[3] + ' ' + line.hour[5] + ' ')
         elif today == '토' or today == '일':
             todo_list = f"야호! 오늘은 {today}요일!"
@@ -100,6 +107,8 @@ def get_todo_list():
     driver.find_element(By.XPATH, '//*[@id="usr_pwd"]').send_keys('1077111')
     driver.find_element(By.XPATH, '//*[@id="login_btn"]').click()
     driver.find_element(By.XPATH, '//*[@id="header"]/div[4]/div/fieldset/div/div[2]/img').click()
+
+    driver.find_element(By.XPATH, '//*[@id="LANG"]/option[1]').click()
 
     time.sleep(1)
     elms = driver.find_element(By.CSS_SELECTOR, '#todo_list').text

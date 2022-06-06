@@ -59,19 +59,26 @@ def handler(update, context):
                      '3. 수업:        e-Class에서 해야할 일들을 알려드려요!\n' \
                      '4. 식당:        팁 지하/E동 1층 식당의 메뉴를 알려드려요!'
         bot.send_message(chat_id=id, text=order_list)
+
     elif user_text == '내일수업' or user_text == '내일 수업' or user_text == '내일':
-        tomororow_sub = WL.tomorrow_sub()
-        tomororow_sub = tomororow_sub.split(' ')
+        tomororow_sub = WL.tomorrow_sub().split(' ')
         sum_text = '[내일 수업 알림]\n\n'
         for name, week, hour in zip(tomororow_sub[::3], tomororow_sub[1::3], tomororow_sub[2::3]):
             sum_text += f'과목: {name}\n시간: {hour} ({week})\n\n'
         bot.send_message(chat_id=id, text=sum_text)
+
     elif user_text == '일정':
         now = datetime.datetime.now(pytz.timezone('Asia/Seoul'))
         todo_list = f'[{now.month}월 {now.day}일 해야할 일]\n' + WL.get_todo_list()
         bot.send_message(chat_id=id, text=todo_list)
+
     elif user_text == "수업":
-        bot.send_message(chat_id=id, text=WL.set_sub())
+        today_sub = WL.set_sub().split(' ')
+        sum_text = '[오늘의 수업 안내!]\n\n'
+        for name, week, hour in zip(today_sub[::3], today_sub[1::3], today_sub[2::3]):
+            sum_text += f'과목: {name}\n시간: {hour} ({week})\n\n'
+        bot.send_message(chat_id=id, text=sum_text)
+
     elif user_text == "식당" or user_text == "밥" or user_text == "학식" or user_text == "ㅅㄷ" or user_text == "ㅂ" or user_text == "ㅎㅅ":
         WL.restaurant()
         bot.send_message(chat_id=id, text="이번주 식단입니다.")
