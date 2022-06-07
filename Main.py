@@ -25,17 +25,14 @@ def job():
         WL.restaurant()  # 식당 정보를 월요일 갱신
 
     if weekday != '토' and weekday != '일':
-        subs = WL.set_sub()
-        subs = subs.split('\n')
-        for sub in subs:
-            sub = sub.split(' ')
-            for s in sub[2::3]:
-                if (int(s[0:2]) == now.hour) and (int(s[3:5]) == now.minute + 10) and sub[1] == weekday:
-                    bot.send_message(chat_id=id,
-                                     text='[수업 시간 10분 전 알림]\n과목: ' + sub[0] + '\n시간: ' + sub[2] + ' (' + sub[1] + ')')
-                elif int(s[0:2]) == now.hour + 1 and int(s[3:5]) == now.minute - 50 and sub[1] == weekday:
-                    bot.send_message(chat_id=id,
-                                     text='[수업 시간 10분 전 알림]\n과목: ' + sub[0] + '\n시간: ' + sub[2] + ' (' + sub[1] + ')')
+        subs = WL.set_sub().split(' ')
+        for name, day, h in zip(subs[::3], subs[1::3], subs[2::3]):
+            if (int(h[0:2]) == now.hour) and (int(h[3:5]) == now.minute + 10) and weekday == day:
+                bot.send_message(chat_id=id,
+                                 text=f'[수업 시간 10분 전 알림]\n과목: ' + name + '\n시간: ' + h + ' (' + day + ')')
+            elif (int(h[0:2]) == now.hour + 1) and (int(h[3:5]) == now.minute - 50) and weekday == day:
+                bot.send_message(chat_id=id,
+                                 text=f'[수업 시간 10분 전 알림]\n과목: ' + name + '\n시간: ' + h + ' (' + day + ')')
     if now.minute == 0:
         bot.send_message(chat_id=id, text=f"명철씌 정각 알람이에요!\n현재시각: {now.hour}:{now.minute} 입니다!")
     elif now.hour == 8 and now.minute == 30:
@@ -92,7 +89,7 @@ def handler(update, context):
 
 
 schedule_loop = True
-schedule.every(30).seconds.do(job)
+schedule.every(1).minutes.do(job)
 
 # Updater
 updater = Updater(token=token, use_context=True)

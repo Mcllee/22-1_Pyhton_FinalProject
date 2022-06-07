@@ -106,9 +106,9 @@ def get_todo_list():
     driver.find_element(By.XPATH, '//*[@id="usr_pwd"]').click()
     driver.find_element(By.XPATH, '//*[@id="usr_pwd"]').send_keys('1077111')
     driver.find_element(By.XPATH, '//*[@id="login_btn"]').click()
-    driver.find_element(By.XPATH, '//*[@id="header"]/div[4]/div/fieldset/div/div[2]/img').click()
-
     driver.find_element(By.XPATH, '//*[@id="LANG"]/option[1]').click()
+
+    driver.find_element(By.XPATH, '//*[@id="header"]/div[4]/div/fieldset/div/div[2]/img').click()
 
     time.sleep(1)
     elms = driver.find_element(By.CSS_SELECTOR, '#todo_list').text
