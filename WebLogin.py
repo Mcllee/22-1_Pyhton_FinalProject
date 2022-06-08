@@ -117,7 +117,7 @@ def get_todo_list():
     return elms.replace('[', '\n[')
 
 
-def restaurant():
+def restaurant(update):
     now = datetime.datetime.now(pytz.timezone('Asia/Seoul'))
     days = ['월', '화', '수', '목', '금', '토', '일']
     today = days[datetime.date(now.year, now.month, now.day).weekday()]
@@ -129,6 +129,8 @@ def restaurant():
     try:
         open('screenshot01.png').close()
         open('screenshot02.png').close()
+        if update:
+            raise Exception
     except:
         chrome_options01 = webdriver.ChromeOptions()
         chrome_options02 = webdriver.ChromeOptions()

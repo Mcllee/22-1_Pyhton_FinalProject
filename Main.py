@@ -76,11 +76,14 @@ def handler(update, context):
             sum_text += f'과목: {name}\n시간: {hour} ({week})\n\n'
         bot.send_message(chat_id=id, text=sum_text)
 
-    elif user_text == "식당" or user_text == "밥" or user_text == "학식" or user_text == "ㅅㄷ" or user_text == "ㅂ" or user_text == "ㅎㅅ":
-        WL.restaurant()
+    elif user_text == "식당" or user_text == "밥" or user_text == "학식" \
+            or user_text == "ㅅㄷ" or user_text == "ㅂ" or user_text == "ㅎㅅ":
+        WL.restaurant(False)
         bot.send_message(chat_id=id, text="이번주 식단입니다.")
         bot.send_photo(chat_id=id, photo=open('screenshot01.png', 'rb'))
         bot.send_photo(chat_id=id, photo=open('screenshot02.png', 'rb'))
+    elif user_text == '학식 업데이트':
+        WL.restaurant(True)
     else:
         try:
             bot.send_message(chat_id=id, text=eval(user_text))
@@ -89,7 +92,7 @@ def handler(update, context):
 
 
 schedule_loop = True
-schedule.every(1).minutes.do(job)
+schedule.every(60).seconds.do(job)
 
 # Updater
 updater = Updater(token=token, use_context=True)
