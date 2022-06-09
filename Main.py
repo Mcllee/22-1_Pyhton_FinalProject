@@ -92,6 +92,7 @@ def handler(update, context):
 
 
 schedule_loop = True
+# tim.sleep을 사용할 경우 실행이 어려움
 schedule.every(60).seconds.do(job)
 
 # Updater
@@ -99,10 +100,7 @@ updater = Updater(token=token, use_context=True)
 dispatcher = updater.dispatcher
 updater.start_polling()
 
-
-
 while schedule_loop:
     echo_handler = MessageHandler(Filters.text, handler)
     dispatcher.add_handler(echo_handler)
     schedule.run_pending()
-    time.sleep(1)
