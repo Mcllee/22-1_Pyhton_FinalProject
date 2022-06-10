@@ -5,6 +5,7 @@ import datetime
 import pytz
 from selenium.webdriver.chrome.service import Service
 import os
+from PIL import Image
 
 
 class class_inf:
@@ -24,12 +25,12 @@ subjects = []
 def first_setting():
     global elms
 
-    driver = webdriver.Chrome()
-
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Chrome(service=Service("../../chromedriver"), options=chrome_options)
 
     driver.get('http://eclass.tukorea.ac.kr/ilos/main/member/login_form.acl')
     driver.find_element(By.XPATH, '//*[@id="usr_id"]').click()
@@ -48,6 +49,7 @@ def first_setting():
 
 def set_sub():
     global elms
+
     subjects.clear()
     for name, professor, hour in zip(elms[1::3], elms[2::3], elms[3::3]):
         subjects.append(class_inf(name, professor, hour))
@@ -99,7 +101,15 @@ def tomorrow_sub():
 
 
 def get_todo_list():
-    driver = webdriver.Chrome()
+    global elms
+
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Chrome(service=Service("../../chromedriver"), options=chrome_options)
+
     driver.get('http://eclass.tukorea.ac.kr/ilos/main/member/login_form.acl')
     driver.find_element(By.XPATH, '//*[@id="usr_id"]').click()
     driver.find_element(By.XPATH, '//*[@id="usr_id"]').send_keys('2018184020')
@@ -113,8 +123,6 @@ def get_todo_list():
     time.sleep(1)
     elms = driver.find_element(By.CSS_SELECTOR, '#todo_list').text
     driver.close()
-
-    return elms.replace('[', '\n[')
 
 
 def restaurant(update):
@@ -142,8 +150,8 @@ def restaurant(update):
         chrome_options02.add_argument("--disable-dev-shm-usage")
 
         # chromedriver 위치 주의!
-        driver01 = webdriver.Chrome(service=Service("chromedriver"), options=chrome_options01)
-        driver02 = webdriver.Chrome(service=Service("chromedriver"), options=chrome_options02)
+        driver01 = webdriver.Chrome(service=Service("../../chromedriver"), options=chrome_options01)
+        driver02 = webdriver.Chrome(service=Service("../../chromedriver"), options=chrome_options02)
 
         driver01.get('https://ibook.kpu.ac.kr/Viewer/menu01')
         time.sleep(1)  # 스크린샹을 위해 잠시 멈춤(웹 로딩)
@@ -155,4 +163,33 @@ def restaurant(update):
 
         driver01.close()
         driver02.close()
+
+
+def weather(update):
+
+    if update:
+        os.remove('./weather01.png')
+        os.remove('./weather02.png')
+
+    try:
+        open('./weather01.png').close()
+        open('./weather02.png').close()
+        if update:
+            raise Exception
+    except:
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+
+        driver = webdriver.Chrome(service=Service("../../chromedriver"), options=chrome_options)
+        driver.set_window_size(800, 800)
+
+        driver.get('https://search.naver.com/search.naver?ie=UTF-8&sm=whl_hty&query=정왕동+오늘+날씨')
+
+        driver.get_screenshot_as_file('weather01.png')
+        driver.close()
+
+        weather_im = Image.open('weather01.png')
+        weather_im.crop((40, 250, 695, 770)).save('weather02.png')
 
